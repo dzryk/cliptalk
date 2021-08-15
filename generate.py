@@ -113,7 +113,7 @@ def caption_image(table, x, args, net):
 
 def captioner(args, net):
     dataset = ImageDataset(folder=args.image_dir)
-p    data = DataLoader(dataset,
+    data = DataLoader(dataset,
                       batch_size=args.batch_size,
                       shuffle=False,
                       num_workers=args.nworkers,
