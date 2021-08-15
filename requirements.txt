@@ -1,0 +1,11 @@
+scipy
+matplotlib
+ftfy
+torch
+torchvision
+nltk
+pytorch-lightning
+transformers
+autofaiss
+wandb
+parlai
