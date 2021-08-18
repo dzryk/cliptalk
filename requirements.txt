@@ -9,3 +9,4 @@ transformers
 autofaiss
 wandb
 parlai
+webdataset
