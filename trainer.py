@@ -35,6 +35,9 @@ def main():
     parser.add_argument('--clip_model', type=str, default='ViT-B/16')
     parser.add_argument('--gpt', type=str, default='gpt2-large')
     parser.add_argument('--ft', type=str, default='bias')
+    parser.add_argument('--web_dataset', type=bool, default=False)
+    parser.add_argument('--wds_keys', type=str, default='img,cap')
+    parser.add_argument('--dataset_size', nargs='+', type=int, default=[1e9])
     parser.add_argument('--batch_size', type=int, default=16)
     parser.add_argument('--knn', type=int, default=5)
     parser.add_argument('--maxlen', type=int, default=64)
@@ -73,6 +76,17 @@ def main():
         indices.append(faiss.read_index(glob.glob(f"{index_dir}/*.index")[0]))
     preprocess = clip.load(args.clip_model, jit=False)[1]
 
+    # Determine world size
+    if args.tpu_cores:       
+        import torch_xla.core.xla_model as xm
+        args.world_size = xm.xrt_world_size()
+    else: 
+        if args.gpus > 1:     
+            torch.distributed.init_process_group(backend='nccl') 
+            args.world_size = torch.distributed.get_world_size()
+        else:
+            args.world_size = 1
+
     # Train model
     wandb_logger = WandbLogger(
         save_dir=args.logdir,
@@ -87,6 +101,10 @@ def main():
         train_datadir=args.train_datadir,
         dev_datadir=args.dev_datadir,
         batch_size=args.batch_size,
+        web_dataset=args.web_dataset,
+        wds_keys=args.wds_keys,
+        world_size=args.world_size,
+        dataset_size=args.dataset_size,
         nworkers=args.nworkers)
     net = model.Model(args, indices=indices, indices_data=indices_data)
     trainer = pl.Trainer(
