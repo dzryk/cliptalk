@@ -160,7 +160,10 @@ class DataModule(pl.LightningDataModule):
         return Image.open(BytesIO(b))
 
     def decode(self, s):
-        return s.decode('utf-8')
+        s = s.decode('utf-8')
+        s = s.split('\n')
+        s = list(filter(lambda t: len(t) > 0, s))
+        return choice(s)
 
     def fix_img(self, img):
         return img.convert('RGB') if img.mode != 'RGB' else img

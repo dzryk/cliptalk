@@ -48,6 +48,7 @@ def main():
     parser.add_argument('--val_after_n_epochs', type=int, default=1)
     parser.add_argument('--tmax', type=int, default=1e5)
     parser.add_argument('--save_top_k', type=int, default=10)
+    parser.add_argument('--num_sanity_val_steps', type=int, default=0)
     parser.add_argument('--lrate', type=float, default=3e-4)
     args = parser.parse_args()
 
@@ -114,6 +115,7 @@ def main():
         precision=args.precision,
         tpu_cores=args.tpu_cores,
         max_steps=args.tmax,
+        num_sanity_val_steps=args.num_sanity_val_steps,
         callbacks=[ckpt_callback],
         check_val_every_n_epoch=args.val_after_n_epochs)
     trainer.fit(net, datamodule)
