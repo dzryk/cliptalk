@@ -77,22 +77,28 @@ class Model(pl.LightningModule):
                           labels=torch.tensor(labels, device=self.device)).loss
         return loss
 
-    def training_step(self, batch, batch_idx):
-        if len(batch) == 2:
+    def unpack(self, batch):
+        if self.hparams.task == 'im2txt':
             x, y = batch
-            ctx = None
-        else:
-            x, y, ctx = batch
+            return x, y, None
+        elif self.hparams.task == 'txt2txt':
+            x, _ = batch
+            if '\t' in x[0]:
+                x = [l.split('\t') for l in x]
+                txt = [t[0] for t in x]
+                ctx = [t[1] for t in x]
+                return txt, txt, ctx
+            else:
+                return x, x, None
+            
+    def training_step(self, batch, batch_idx):
+        x, y, ctx = self.unpack(batch)
         loss = self.compute_loss(x, y, ctx)
         self.log('loss', loss, on_step=True, prog_bar=True)
         return loss
         
     def validation_step(self, batch, batch_idx):
-        if len(batch) == 2:
-            x, y = batch
-            ctx = None
-        else:
-            x, y, ctx = batch
+        x, y, ctx = self.unpack(batch)
         loss = self.compute_loss(x, y, ctx)
         self.log('vloss', loss, on_epoch=True, prog_bar=True, sync_dist=True)
         return loss

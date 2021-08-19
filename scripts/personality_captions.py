@@ -11,16 +11,12 @@ def save_text(datadir, split):
         captions = json.load(f)
     keys = range(len(captions))
     for k in keys:
-        ctxfname = f'{str(k).zfill(12)}.ctx'
         txtfname = f'{str(k).zfill(12)}.txt'
         ctx = captions[k]['personality']
         txt = captions[k]['comment']
-        ctxpath = f'{datadir}/personality_captions/{split}/{ctxfname}'
         txtpath = f'{datadir}/personality_captions/{split}/{txtfname}'
-        with open(ctxpath, 'w') as f:
-            f.write(ctx + '\n')
         with open(txtpath, 'w') as f:
-            f.write(txt + '\n')
+            f.write(f'{txt}\t{ctx}\n')
 
 
 def main():

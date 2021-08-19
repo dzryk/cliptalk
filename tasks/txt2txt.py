@@ -122,13 +122,13 @@ class DataModule(pl.LightningDataModule):
 
             self.train = (
                 wds.WebDataset(DATASET_TRAIN)
-                .map_dict(**text_mapping)  
+                .map_dict(**text_mapping)
                 .to_tuple(mycap, mycap)
                 .batched(self.batch_size, partial=False)                 
                 )   
             self.valid = (
                 wds.WebDataset(DATASET_VAL)                 
-                .map_dict(**text_mapping)    
+                .map_dict(**text_mapping)
                 .to_tuple(mycap, mycap)
                 .batched(self.batch_size, partial=False)                   
                 )
@@ -181,6 +181,9 @@ def build_table(x,
                 return_images=False):
     """txt2txt table."""
     table = [' || '] * len(x)
+    if ctx:
+        for idx in range(len(x)):
+            table[idx] += ctx[idx] + ' || '
     if is_image:
         x = perceiver.encode_image(x).float()
     else:
